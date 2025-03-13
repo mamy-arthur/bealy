@@ -1,5 +1,6 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "./index";
+import User from "./user";
 
 interface UserFavoritesAttributes {
   id?: number;
@@ -26,7 +27,8 @@ UserFavorites.init({
       },
       userId: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
+        references: {model: 'users', key: 'id'}
       },
       favoriteIds: {
         type: DataTypes.JSON,
@@ -38,5 +40,8 @@ UserFavorites.init({
       modelName: 'UserFavorites',
       timestamps: true
 });
+
+User.hasOne(UserFavorites, { foreignKey: 'userId' });
+UserFavorites.belongsTo(User, { foreignKey: 'userId' });
 
 export default UserFavorites;

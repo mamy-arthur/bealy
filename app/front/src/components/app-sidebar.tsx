@@ -15,7 +15,7 @@ import Link from "next/link"
 
 export function AppSidebar() {
     return (
-        <Sidebar>
+        <Sidebar className="z-20">
             <SidebarHeader />
             <SidebarContent>
             {data.navMain.map((item) => (

@@ -1,16 +1,22 @@
 import { CreateUserDto, UpdateUserDto } from "../DTO/User.dto";
 import User from "../models/user";
+import UserFavorites from "../models/userfavorites";
 
 class UserService {
-    async getAllPublicUsers() {
-        return await User.findAll({
+    async getAllPublicUsers(userId: number) {
+        const users = await User.findAll({
             where: {
                 ispublic: true
+            },
+            include: {
+                model: UserFavorites,
+                attributes: ['id', 'favoriteIds']
             },
             attributes: {
                 exclude: ['password', 'createdAt', 'updatedAt']
             }
-        });
+        }) || [];
+        return users.filter(user => user.id !== userId);
     }
 
     async getUser(id: number) {
@@ -25,9 +31,17 @@ class UserService {
     }
 
     async updateUser(data: UpdateUserDto, id: number) {
-        return await User.update(data, {
+        await User.update(data, {
             where: {
                 id: id
+            }
+        });
+        return await User.findOne({
+            where: {
+                id: id
+            },
+            attributes: {
+                exclude: ['password', 'createdAt', 'updatedAt']
             }
         });
     }

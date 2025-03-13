@@ -9,7 +9,6 @@ class UserFavoritesController {
 
     addStoryToFavorite = async (req: CustomRequest, res: Response) => {
         const userId = req.user?.id || 0;
-        console.log(userId);
         const userFavorites = await this.userFavoritesService.addStoryToFavorite(userId, req.body.favoriteId);
         res.json(userFavorites);
     }

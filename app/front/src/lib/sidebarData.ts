@@ -1,4 +1,4 @@
-import { FolderHeart, List, Settings, Settings2 } from "lucide-react";
+import { FolderHeart, List, Settings2, UserRoundCog, Users } from "lucide-react";
 
 export const data = {
     versions: ["1.0.1", "1.1.0-alpha", "2.0.0-beta1"],
@@ -28,7 +28,12 @@ export const data = {
                 {
                     title: "User profile",
                     url: "/user-profile",
-                    icon: Settings
+                    icon: UserRoundCog
+                },
+                {
+                    title: "Other users",
+                    url: "/other-users",
+                    icon: Users
                 },
             ],
         },

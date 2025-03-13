@@ -1,5 +1,7 @@
+import { AppListing } from "@/components/app-listing";
+
 export default function FavoriteStories() {
     return (<>
-        Favorite stories page
+        <AppListing favoritePage={true} userId={0}/>
     </>);
 }

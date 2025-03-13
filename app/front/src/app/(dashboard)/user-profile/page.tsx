@@ -1,4 +1,7 @@
+import AppUserProfile from "@/components/app-user-profile";
+
 export default function UserProfile() {
-    return (<>
-    User profile page</>);
+    return (
+        <AppUserProfile />
+    );
 }

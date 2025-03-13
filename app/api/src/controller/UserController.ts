@@ -7,8 +7,9 @@ class UsersController {
         this.userService = userService;
     }
 
-    getAllPublicUsers = async (req: Request, res: Response) => {
-        const users = await this.userService.getAllPublicUsers();
+    getAllPublicUsers = async (req: CustomRequest, res: Response) => {
+        const userId: number = req.user?.id || 0;
+        const users = await this.userService.getAllPublicUsers(userId);
         res.json(users);
     }
 
@@ -39,6 +40,14 @@ class UsersController {
             status: 'success',
             message: 'user deleted'
         });
+    }
+
+    updateUserImage = async (req: Request, res: Response) => {
+        const data = {
+            image: req.body.image
+        };
+        const user = await this.userService.updateUser(data, parseInt(req.params.id, 10));
+        res.json(user);
     }
 }
 

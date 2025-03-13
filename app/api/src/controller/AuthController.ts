@@ -28,6 +28,13 @@ class AuthController {
             });
         }
     }
+
+    logout = async (req: Request, res: Response) => {
+        res.clearCookie('token');
+        res.json({
+            message: 'User deconnected!'
+        });
+    }
 }
 
 export default AuthController;

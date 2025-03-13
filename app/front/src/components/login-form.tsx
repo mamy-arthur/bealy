@@ -9,9 +9,14 @@ import { Label } from "@/components/ui/label"
 import { login } from "@/services/userService";
 import { useRouter } from "next/navigation";
 import useAuth from "@/hooks/useAuth";
+import Link from "next/link";
 
 export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
   const router = useRouter();
+  const {user, logout} = useAuth();
+  if (user) {
+    router.push('/dashboard');
+  }
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -54,9 +59,9 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
             </div>
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{" "}
-              <a href="#" className="underline underline-offset-4">
+              <Link href="/register" className="underline underline-offset-4">
                 Sign up
-              </a>
+              </Link>
             </div>
           </form>
         </CardContent>

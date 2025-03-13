@@ -1,7 +1,5 @@
+import { apiUrl } from "@/constants/apiContant";
 import { credentialType } from "@/types/credentialType";
-import { GetServerSideProps } from "next";
-
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export const login = async (credential: credentialType) => {
     return await fetch(`${apiUrl}/login`, {
@@ -20,20 +18,41 @@ export const getCurrentUser = async () => {
     });
 };
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { req } = context;
+export const logoutApi = async () => {
+    return await fetch(`${apiUrl}/logout`, {
+        credentials: 'include'
+    });
+};
 
-  const res = await fetch(`${apiUrl}/users/current`, {
-    headers: { Cookie: req.headers.cookie || '' },
-    //credentials: 'include',
-  });
+export const register = async (data: any) => {
+    return await fetch(`${apiUrl}/register`, {
+        method: 'POST',
+        body: data
+    });
+};
 
-  console.log(res);
+export const getOtherUsers = async () => {
+    return await fetch(`${apiUrl}/users/public`, {
+        method: 'GET',
+        credentials: 'include'
+    });
+};
 
-  if (res.status !== 200) {
-    return { redirect: { destination: '/login', permanent: false } };
-  }
+export const updateUser = async (data: any, id: number) => {
+    return await fetch(`${apiUrl}/users/update/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data),
+        credentials: 'include'
+    });
+}
 
-  const data = await res.json();
-  return { props: { user: data.user } };
+export const updateUserImage = async (data: any, id: number) => {
+    return await fetch(`${apiUrl}/users/update-image/${id}`, {
+        method: 'PUT',
+        body: data,
+        credentials: 'include'
+    })
 };

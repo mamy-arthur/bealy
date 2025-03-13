@@ -22,7 +22,7 @@ const useAuth = () => {
     }
   }, []);
 
-  const logout = () => {
+  const logout = async () => {
     setUser(null);
     router.push('/login');
   };
