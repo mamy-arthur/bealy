@@ -11,6 +11,7 @@ interface UserAttributes {
   description?: string;
   image?: string;
   ispublic?: boolean;
+  reset_token?: string;
 }
 
 interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
@@ -24,6 +25,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   public description?: string;
   public image?: string;
   public ispublic?: boolean;
+  public reset_token?: string;
 
   // Timestamps
   public readonly createdAt!: Date;
@@ -68,6 +70,10 @@ User.init({
     },
     ispublic: {
       type: DataTypes.BOOLEAN,
+      allowNull: true,
+    },
+    reset_token: {
+      type: DataTypes.STRING,
       allowNull: true,
     }
   }, {

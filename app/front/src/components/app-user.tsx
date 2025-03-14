@@ -8,14 +8,19 @@ import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { register } from "@/services/userService";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 
 export default function AppUser() {
     const router = useRouter();
+    const [loading, setLoading] = useState(false);
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setLoading(true);
         const formData = new FormData(e.currentTarget);
         const response = await register(formData);
         if (response.ok) {
+            setLoading(false);
             router.push('/login');
         }
     };
@@ -62,7 +67,7 @@ export default function AppUser() {
                     </div>
                     <div className="col-span-2">
                         <Button type="submit" className="w-full">
-                            Create User
+                            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Create User'}
                         </Button>
                     </div>
                 </form>

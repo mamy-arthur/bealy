@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import AuthService from "../services/AuthService";
+import { MessagingService } from "../services/MessagingService";
 
 class AuthController {
     constructor(
@@ -34,6 +35,33 @@ class AuthController {
         res.json({
             message: 'User deconnected!'
         });
+    }
+
+    sendResetPasswordRequest = async (req: Request, res: Response) => {
+        //const transporter = MessagingService.getTransporter();
+        const user = await this.authService.getUserByMail(req.body.email);
+        if (!user) {
+            return res.status(400).json({ message: "Email not found!" });
+        }
+        
+        // try {
+        //     const user = await this.authService.getUserByMail(req.body.email);
+        // } catch(error) {
+        //     res.status(400).json({ message: "Email not found!", error });
+        // }
+        res.json(user);
+        // try {
+        //     // const info = await transporter.sendMail({
+        //     //     from: process.env.EMAIL_USER,
+        //     //     to: 'mamyarthurr@gmail.com',
+        //     //     subject: 'TEST',
+        //     //     html: `<div>TATATTTAT</div>`
+        //     // });
+        //     console.log(req.body);
+        //     return res.json({ message: 'Email sent' });
+        // } catch(error) {
+        //     res.status(500).json({ message: "Erreur lors de l'envoi de l'email", error });
+        // }
     }
 }
 

@@ -10,19 +10,27 @@ import { login } from "@/services/userService";
 import { useRouter } from "next/navigation";
 import useAuth from "@/hooks/useAuth";
 import Link from "next/link";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import InputSendEmail from "./input-send-email";
 
 export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
   const router = useRouter();
   const {user, logout} = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
   if (user) {
     router.push('/dashboard');
   }
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
     const formData = new FormData(e.currentTarget);
     const data: any = Object.fromEntries(formData);
     const response = await login(data);
     if (response.ok) {
+      setLoading(false);
       router.push('/dashboard');
     }
   };
@@ -42,13 +50,28 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
                 <Input id="email" type="email" placeholder="m@example.com" name="email" required />
               </div>
               <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
+                <div className="flex justify-between">
+                  <div>
+                    <Label htmlFor="password">Password</Label>
+                  </div>
+                  <div>
+                    <Dialog open={open}>
+                      <DialogTrigger className="text-right">
+                        <span className="text-sm underline underline-offset-4">Forgot your password?</span>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Reset password</DialogTitle>
+                        </DialogHeader>
+                        <InputSendEmail open={open} setOpen={setOpen}/>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 </div>
                 <Input id="password" type="password" name="password" required />
               </div>
               <Button type="submit" className="w-full">
-                Login
+                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Login'}
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">

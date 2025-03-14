@@ -9,7 +9,7 @@ import { getCurrentUser, logoutApi, register, updateUser, updateUserImage } from
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Pencil, Save } from "lucide-react";
+import { Loader2, Pencil, Save } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 
 type userType = {
@@ -37,10 +37,12 @@ export default function AppUserProfile() {
     const [file, setFile] = useState<any>();
     const [saveImage, setSaveImage] = useState(false);
     const [data, setData] = useState<any>({});
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setLoading(true);
         await updateUser(data, user?.id || 0)
             .then((response) => {
                 if (response.ok) {
@@ -56,7 +58,9 @@ export default function AppUserProfile() {
                 if (user?.image) {
                     setPreviewImage(`${imageBaseUrl}/${user?.image}`);
                 }
+                setData({});
             }).catch((error) => {
+                setLoading(false);
                 console.log(error)
             });
     };
@@ -238,7 +242,7 @@ export default function AppUserProfile() {
                     </div>
                     <div className="col-span-2">
                         <Button type="submit" className="w-full">
-                            Update User
+                            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Update User'}
                         </Button>
                     </div>
                 </form>

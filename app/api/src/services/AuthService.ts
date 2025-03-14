@@ -46,6 +46,17 @@ class AuthService {
             user: data
         }
     }
+
+    async getUserByMail(email: string) {
+        return await User.findOne({
+            where: {
+                email: email
+            },
+            attributes: {
+                exclude: ['password', 'createdAt', 'updatedAt']
+            }
+        });
+    }
 }
 
 export default AuthService;

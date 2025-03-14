@@ -27,7 +27,7 @@ export class CreateUserDto {
   @IsOptional()
   image?: string;
 
-  @IsBoolean()
+  @IsString()
   @IsOptional()
   ispublic?: boolean;
 }
