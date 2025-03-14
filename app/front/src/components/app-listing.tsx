@@ -5,6 +5,8 @@ import { Card, CardContent } from "./ui/card";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getStories, manageFavorite } from "@/services/favoriteService";
+import { getUser } from "@/services/userService";
+import { error } from "console";
 
 type storyType = {
     by: string,
@@ -17,10 +19,20 @@ type storyType = {
     type: string,
     url: string,
     isfavorite: boolean,
-}
+};
+
+type userType = {
+    id: number,
+    username: string,
+    email: string,
+    age: number,
+    description: string,
+    image: string,
+};
 
 export function AppListing({favoritePage, userId}: {favoritePage: boolean, userId: number}) {
-    const title = favoritePage ? 'List of my favorites stories' : 'Hacker News - Top Stories';
+    const [user, setUser] = useState<userType | null>();
+    const title = favoritePage ? (userId ? `List of favorites stories of ${user?.username}` : 'List of my favorites stories') : 'Hacker News - Top Stories';
     const [stories, setStories] = useState<storyType[]>([]);
     const [page, setPage] = useState<number>(1);
     const [loading, setLoading] = useState<boolean>(false);
@@ -47,6 +59,21 @@ export function AppListing({favoritePage, userId}: {favoritePage: boolean, userI
                 console.log('ERROR');
             });
     }, [page]);
+
+    useEffect(() => {
+        if (userId) {
+            getUser(userId)
+                .then((response) => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                }).then((user) => {
+                    setUser(user);
+                }).catch((error) => {
+                    console.error(error);
+                });
+        }
+    }, []);
 
     const handlePreviousPage = () => {
         if (page > 1) {

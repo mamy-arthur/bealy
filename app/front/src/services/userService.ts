@@ -56,3 +56,10 @@ export const updateUserImage = async (data: any, id: number) => {
         credentials: 'include'
     })
 };
+
+export const getUser = async (id: number) => {
+    return await fetch(`${apiUrl}/users/${id}`, {
+        method: 'GET',
+        credentials: 'include'
+    });
+}
