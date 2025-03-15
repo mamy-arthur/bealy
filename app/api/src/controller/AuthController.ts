@@ -1,10 +1,12 @@
 import { Request, Response } from "express";
 import AuthService from "../services/AuthService";
 import { MessagingService } from "../services/MessagingService";
+import User from "../models/user";
 
 class AuthController {
     constructor(
-        private authService: AuthService
+        private authService: AuthService,
+        private messagingService: MessagingService
     ) {}
 
     register = async (req: Request, res: Response) => {
@@ -38,30 +40,39 @@ class AuthController {
     }
 
     sendResetPasswordRequest = async (req: Request, res: Response) => {
-        //const transporter = MessagingService.getTransporter();
-        const user = await this.authService.getUserByMail(req.body.email);
+        const user: User | null = await this.authService.getUserByMail(req.body.email);
         if (!user) {
-            return res.status(400).json({ message: "Email not found!" });
+            return res.status(400).json({
+                message: 'Email not found!'
+            });
         }
-        
-        // try {
-        //     const user = await this.authService.getUserByMail(req.body.email);
-        // } catch(error) {
-        //     res.status(400).json({ message: "Email not found!", error });
-        // }
-        res.json(user);
-        // try {
-        //     // const info = await transporter.sendMail({
-        //     //     from: process.env.EMAIL_USER,
-        //     //     to: 'mamyarthurr@gmail.com',
-        //     //     subject: 'TEST',
-        //     //     html: `<div>TATATTTAT</div>`
-        //     // });
-        //     console.log(req.body);
-        //     return res.json({ message: 'Email sent' });
-        // } catch(error) {
-        //     res.status(500).json({ message: "Erreur lors de l'envoi de l'email", error });
-        // }
+        const token = await this.authService.generateAndSaveToken(req.body.email, user);
+        const url = `${process.env.FRONT_BASE_URL}/reset-password/${token}`;
+        const message = req.body.message.replace('{{username}}', user.username).replace('{{url}}', url);
+        try {
+            await this.messagingService.sendEmail(user.email, message);
+            return res.json({
+                message: 'Email sent'
+            });
+        } catch(error) {
+            res.status(500).json({
+                message: 'Error sending email'
+            });
+        }
+    }
+
+    setNewPassword = async (req: Request, res: Response) => {
+        const user: User | null = await this.authService.getUserByToken(req.body.token);
+        if (!user) {
+            res.status(400).json({
+                message: 'There is no matching user'
+            });
+        } else {
+            await this.authService.setUserNewPassword(user, req.body.password);
+            res.json({
+                message: 'Your password has been successfully reset.'
+            })
+        }
     }
 }
 

@@ -62,3 +62,12 @@ export class UpdateUserDto {
   @IsOptional()
   ispublic?: boolean;
 }
+
+export class ResetPasswordDto {
+  @IsString()
+  token!: string;
+
+  @IsString()
+  @Length(6, 20)
+  password!: string;
+}

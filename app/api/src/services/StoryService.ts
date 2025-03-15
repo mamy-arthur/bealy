@@ -23,8 +23,12 @@ class StoryService {
     }
 
     private async fetchTopStories(){
-        const response = await fetch(`${process.env.EXTERNAL_API_URL}/topstories.json`);
-        return await response.json() || [];
+        try {
+            const response = await fetch(`${process.env.EXTERNAL_API_URL}/topstories.json`);
+            return await response.json();
+        } catch(error) {
+            return [];
+        }
     }
 
     private async getPaginateStories(
@@ -46,7 +50,11 @@ class StoryService {
         const paginateIds = storiesIds.slice(offset, offset + limit);
         const paginateStories = await Promise.all(
             paginateIds.map(async (id: number) => {
-                return fetch(`${process.env.EXTERNAL_API_URL}/item/${id}.json`).then(res => res.json());
+                try {
+                    return fetch(`${process.env.EXTERNAL_API_URL}/item/${id}.json`).then(res => res.json());
+                } catch(error) {
+                    return {};
+                }
             })
         );
 

@@ -2,6 +2,8 @@ import { CreateUserDto } from "../DTO/User.dto";
 import User from "../models/user";
 import jwt from "jsonwebtoken";
 import dotenv from 'dotenv';
+const bcrypt = require("bcrypt");
+const salt = 10;
 
 dotenv.config();
 
@@ -56,6 +58,31 @@ class AuthService {
                 exclude: ['password', 'createdAt', 'updatedAt']
             }
         });
+    }
+
+    async generateAndSaveToken(email: string, user: User) {
+        const token = jwt.sign(email, process.env.JWT_SECRET!);
+        user.set('reset_token', token);
+        await user.save();
+        return token;
+    }
+
+    async getUserByToken(token: string) {
+        return await User.findOne({
+            where: {
+                reset_token: token
+            },
+            attributes: {
+                exclude: ['password', 'createdAt', 'updatedAt']
+            }
+        })
+    }
+
+    async setUserNewPassword(user: User, password: string) {
+        const passwordHash = await bcrypt.hash(password, salt);
+        user.set('password', passwordHash);
+        user.set('reset_token', '');
+        await user.save();
     }
 }
 

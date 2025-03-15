@@ -6,11 +6,12 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { getCurrentUser, logoutApi, register, updateUser, updateUserImage } from "@/services/userService";
-import { use, useEffect, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Loader2, Pencil, Save } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { toast } from "sonner";
 
 type userType = {
     id: number,
@@ -38,31 +39,37 @@ export default function AppUserProfile() {
     const [saveImage, setSaveImage] = useState(false);
     const [data, setData] = useState<any>({});
     const [loading, setLoading] = useState(false);
+    const [open, setOpen] = useState(false);
     const router = useRouter();
+
+    const setUserInfo = useCallback((user: userType) => {
+        setUser(user);
+        setUsername(user?.username);
+        setEmail(user?.email);
+        setAge(user?.age);
+        setDescription(user?.description);
+        setIspublic(user?.ispublic);
+        if (user?.image) {
+            setPreviewImage(`${imageBaseUrl}/${user?.image}`);
+        }
+        setData({});
+        setLoading(false);
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
-        await updateUser(data, user?.id || 0)
-            .then((response) => {
-                if (response.ok) {
-                    return response.json()
-                }
-            }).then((user) => {
-                setUser(user);
-                setUsername(user?.username);
-                setEmail(user?.email);
-                setAge(user?.age);
-                setDescription(user?.description);
-                setIspublic(user?.ispublic);
-                if (user?.image) {
-                    setPreviewImage(`${imageBaseUrl}/${user?.image}`);
-                }
-                setData({});
-            }).catch((error) => {
-                setLoading(false);
-                console.log(error)
-            });
+        try {
+            const response = await updateUser(data, user?.id || 0);
+            const userData = await response.json();
+            if (response.ok) {
+                toast.success('User updated!');
+                setUserInfo(userData);
+            }
+        } catch (error) {
+            setLoading(false);
+            console.log(error);
+        }
     };
 
     useEffect(() => {
@@ -74,15 +81,7 @@ export default function AppUserProfile() {
                     throw Error();
                 }
             }).then((user) => {
-                setUser(user);
-                setUsername(user?.username);
-                setEmail(user?.email);
-                setAge(user?.age);
-                setDescription(user?.description);
-                setIspublic(user?.ispublic);
-                if (user?.image) {
-                    setPreviewImage(`${imageBaseUrl}/${user?.image}`);
-                }
+                setUserInfo(user);
             }).catch((error) => {
                 logoutApi().then(() => {
                     router.push('/login');
@@ -157,33 +156,24 @@ export default function AppUserProfile() {
         e.preventDefault();
         const formData = new FormData;
         formData.append('image', file);
-        updateUserImage(formData, user?.id || 0)
-            .then((response) => {
-                if (response.ok) {
-                    return response.json();
-                }
-            })
-            .then((user) => {
-                setUser(user);
-                setUsername(user?.username);
-                setEmail(user?.email);
-                setAge(user?.age);
-                setDescription(user?.description);
-                setIspublic(user?.ispublic);
-                if (user?.image) {
-                    setPreviewImage(`${imageBaseUrl}/${user?.image}`);
-                }
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+        try {
+            const response = await updateUserImage(formData, user?.id || 0);
+            const data = await response.json();
+            if (response.ok) {
+                toast.success('User avatar has been updated!');
+                setOpen(false);
+                setUserInfo(data);
+            }
+        } catch(error) {
+            console.error(error);
+        }
     };
 
     return (
         <Card className="mx-auto mt-10 mx-40 p-6 shadow-lg">
             <CardHeader className="items-center">
                 <CardTitle className="mb-4">Edit user</CardTitle>
-                <Dialog>
+                <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger>
                         <Avatar className="cursor-pointer">
                             <AvatarImage src={user?.image ? `${imageBaseUrl}/${user?.image}` : `/images/user.png`} alt={user?.username} />
@@ -195,14 +185,16 @@ export default function AppUserProfile() {
                             <div className="bg-white p-4 rounded-lg flex flex-col items-center space-y-4">
                                 <img src={previewImage} alt="preview" className="w-80 h-80 object-cover rounded-lg" />
                                 <div className="flex space-x-4">
-                                        <div className="flex-1 p-4 rounded-lg"><label htmlFor="fileupload" className="relative cursor-pointer">
-                                                <Pencil className="w-5 h-5" />
-                                                <input id="fileupload" name="image" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
-                                            </label>
-                                        </div>
-                                        {saveImage && <div className="flex-1 p-4 rounded-lg cursor-pointer" onClick={updateUserAvatar}>
-                                            <Save className="w-5 h-5" />
-                                        </div>}
+                                    <div className="flex-1 p-4 rounded-lg">
+                                        <label htmlFor="fileupload" className="relative cursor-pointer">
+                                            <Pencil className="w-5 h-5" />
+                                            <input id="fileupload" name="image" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+                                        </label>
+                                    </div>
+                                    {saveImage &&
+                                    <div className="flex-1 p-4 rounded-lg cursor-pointer" onClick={updateUserAvatar}>
+                                        <Save className="w-5 h-5" />
+                                    </div>}
                                 </div>
                             </div>
                         </DialogHeader>
@@ -241,7 +233,7 @@ export default function AppUserProfile() {
                         </div>
                     </div>
                     <div className="col-span-2">
-                        <Button type="submit" className="w-full">
+                        <Button type="submit" className="w-full" disabled={loading}>
                             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Update User'}
                         </Button>
                     </div>

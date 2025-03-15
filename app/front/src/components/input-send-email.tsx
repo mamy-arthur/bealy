@@ -3,9 +3,12 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardFooter } from "./ui/card";
 import { Input } from "./ui/input";
 import { sendResetPasswordRequest } from "@/services/userService";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
-export default function InputSendEmail({open, setOpen}: {open: boolean, setOpen: React.Dispatch<React.SetStateAction<boolean>>}) {
+export default function InputSendEmail({setOpen}: {setOpen: React.Dispatch<React.SetStateAction<boolean>>}) {
     const [email, setEmail] = useState('');
+    const [loading, setLoading] = useState(false);
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
         setEmail(e.target.value);
@@ -17,7 +20,21 @@ export default function InputSendEmail({open, setOpen}: {open: boolean, setOpen:
         if (!email) {
             return;
         }
-        await sendResetPasswordRequest(email);
+        setLoading(true);
+        try {
+            const response = await sendResetPasswordRequest(email);
+            const data = await response.json();
+            if (response.ok) {
+                toast.success(data.message);
+                setOpen(false);
+            } else {
+                toast.error(data.message);
+            }
+            setLoading(false);
+        } catch (error) {
+            setLoading(false);
+            console.log(error);
+        }
     }
 
     return (
@@ -29,7 +46,9 @@ export default function InputSendEmail({open, setOpen}: {open: boolean, setOpen:
                             <Input id="email" type="email" placeholder="email@example.com" onChange={handleChange} />
                         </div>
                     </div>
-                    <Button className="w-full" disabled={!email}>Send email</Button>
+                    <Button className="w-full" disabled={!email || loading}>
+                        {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> :'Send email'}
+                    </Button>
                 </form>
             </CardContent>
         </Card>

@@ -1,4 +1,5 @@
 import { apiUrl } from "@/constants/apiContant";
+import { message } from "@/lib/pwdresetmsg";
 import { credentialType } from "@/types/credentialType";
 
 export const login = async (credential: credentialType) => {
@@ -62,14 +63,28 @@ export const getUser = async (id: number) => {
         method: 'GET',
         credentials: 'include'
     });
-}
+};
 
 export const sendResetPasswordRequest = async (email: string) => {
+    const data = {
+        email: email,
+        message: message
+    }
     return await fetch(`${apiUrl}/reset-password-request`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({email})
+        body: JSON.stringify(data)
+    });
+};
+
+export const setNewPassword = async (token: string, password: string) => {
+    return await fetch(`${apiUrl}/set-new-password`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({token, password})
     });
 }

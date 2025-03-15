@@ -56,6 +56,7 @@ export function AppListing({favoritePage, userId}: {favoritePage: boolean, userI
                 setLimit(data.limit);
                 setLoading(false);
             }).catch(err => {
+                setLoading(false);
                 console.log('ERROR');
             });
     }, [page]);
