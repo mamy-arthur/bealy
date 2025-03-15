@@ -1,8 +1,7 @@
 import { Request } from "express";
-
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+import fs from "fs";
+import path from "path";
+import multer from "multer";
 
 const storage = multer.diskStorage({
     destination: (req: Request, file: Express.Multer.File, cb: (a: any, uploadDir: string) => void) => {

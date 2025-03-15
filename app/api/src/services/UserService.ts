@@ -1,6 +1,8 @@
-import { CreateUserDto, UpdateUserDto } from "../DTO/User.dto";
+import { UpdateUserDto } from "../DTO/User.dto";
 import User from "../models/user";
 import UserFavorites from "../models/userfavorites";
+import fs from "fs";
+import path from "path";
 
 class UserService {
     async getAllPublicUsers(userId: number) {
@@ -31,12 +33,7 @@ class UserService {
     }
 
     async updateUser(data: UpdateUserDto, id: number) {
-        await User.update(data, {
-            where: {
-                id: id
-            }
-        });
-        return await User.findOne({
+        const user = await User.findOne({
             where: {
                 id: id
             },
@@ -44,6 +41,14 @@ class UserService {
                 exclude: ['password', 'createdAt', 'updatedAt']
             }
         });
+        if (!user) {
+            return null;
+        }
+        if (data.image) {
+            await this.deleteUserPreviousImage(user);
+        }
+        await user.update(data);
+        return user;
     }
 
     async getAllUsers() {
@@ -58,6 +63,19 @@ class UserService {
         await User.destroy({
             where: {
                 id: id
+            }
+        });
+    }
+
+    async deleteUserPreviousImage(user: User) {
+        const image = user.image;
+        if(!image) {
+            return;
+        }
+        const filePath = path.join(process.cwd(), 'public', 'uploads', image);
+        fs.unlink(filePath, (error) => {
+            if (error) {
+                console.log(error);
             }
         });
     }

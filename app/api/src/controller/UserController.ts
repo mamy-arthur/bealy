@@ -26,6 +26,9 @@ class UsersController {
 
     updateUser = async (req: Request, res: Response) => {
         const user = await this.userService.updateUser(req.body, parseInt(req.params.id, 10));
+        if (!user) {
+            return res.status(404).json({message: 'User not found!'});
+        }
         res.json(user);
     }
 
@@ -47,6 +50,9 @@ class UsersController {
             image: req.body.image
         };
         const user = await this.userService.updateUser(data, parseInt(req.params.id, 10));
+        if (!user) {
+            return res.status(404).json({message: 'User not found!'});
+        }
         res.json(user);
     }
 }

@@ -1,8 +1,8 @@
 import express from "express";
 import mainRouter from "./route/mainRoute";
+import path from "path";
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const path = require("path");
 
 const app = express();
 
