@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "root",
+    "password": "!pass",
+    "database": "BEALY_TT_DB",
+    "host": "BEALYSQL",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "root",
+    "password": "!pass",
+    "database": "BEALY_TT_DB",
+    "host": "BEALYSQL",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "root",
+    "password": "!pass",
+    "database": "BEALY_TT_DB",
+    "host": "BEALYSQL",
+    "dialect": "mysql"
+  }
+}
